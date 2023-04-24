@@ -1,8 +1,7 @@
 /******************************************************************************
 
 Zainab Shahid
-OPSYS Jochen
-Extended Shell
+Extended Linux Shell
 
 *******************************************************************************/
 #include <stdio.h>
@@ -21,7 +20,7 @@ Extended Shell
 #define MAX_TOKEN_LENGTH 100
 
 extern char **environ; //using global variable environ that contains all env variables
-int is_background = 0;
+int is_background = 0; //initialize background flag at 0
 
 //function to tokenize input and store the tokens into an array
 char **Tokenize(char *input) 
@@ -67,6 +66,7 @@ char **Tokenize(char *input)
     //set array to null before loop terminates
     tokens[token_count] = NULL;
     
+    //set background process flag to 1 if token is not null and '&' is detected at end of command line
      for (int i = 0; tokens[i] != NULL; i++) {
         if (strcmp(tokens[i], "&") == 0) {
             is_background = 1;
@@ -185,9 +185,6 @@ void print_env() {
 }
 
 //function to handle which command
-//at first i used malloc to allocate memory for a separate string
-//that stored the path command, however i kept getting a malloc corrupt message
-//so i tried it this way
 void which(char **tokens, int num_tokens) {
     if (num_tokens < 2) { //if no file path is specified
         printf("Enter file name\n");
@@ -304,11 +301,11 @@ pid_t executeCommand(char **tokens, int num_tokens) {
             exit(EXIT_FAILURE);
         }
         }
-    } else {
+    } else { //if no background process detected
          if (!is_background) {
             int status;
             waitpid(pid, &status, 0);
-        } else {
+        } else { //else print to show that process is in background
             printf("Background job started. PID: %d\n", pid);
             return 0;
         }
