@@ -297,20 +297,19 @@ pid_t executeCommand(char **tokens, int num_tokens) {
         } else {
             // Execute other commands
             execvp(tokens[0], tokens); //execvp replaces current process image with new
-            perror("execvp");
+            printf("<%s>: ", tokens[0]); //print input, and output command not found
+            printf("command not found\n");
             exit(EXIT_FAILURE);
         }
         }
-    } else { //if no background process detected
-         if (!is_background) {
+    } else {
+         if (!is_background) { //if there is no background process
             int status;
-            waitpid(pid, &status, 0);
-        } else { //else print to show that process is in background
+            waitpid(pid, &status, 0); //parent waits for child process to execute
+        } else { //else user is prompted that the background process has been started
             printf("Background job started. PID: %d\n", pid);
             return 0;
         }
-   // Reset the background flag for the next command
-    is_background = 0;
     return pid;
     }
 }
@@ -322,7 +321,6 @@ int main()
     int pid;
 //loop to keep prompting user for input and not exit after each command
  while (1) {
-     is_background = 0;
     printCWD();
   fflush(stdout); //i noticed prompt was delayed so im flushing the output stream
   fgets (input, MAX_STRING, stdin); 
@@ -367,4 +365,3 @@ int main()
     }
     return 0;
 }
-
